@@ -54,7 +54,7 @@ class FollowViewSet(viewsets.ModelViewSet):
     """Вьюсет модели Follow."""
     serializer_class = FollowSerializer
     filter_backends = (filters.SearchFilter,)
-    search_fields = ('user',)
+    search_fields = ('following__username',)
 
     def get_queryset(self):
         """Создает queryset подписок."""
