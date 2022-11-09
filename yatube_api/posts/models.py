@@ -12,7 +12,7 @@ User = get_user_model()
 class Post(models.Model):
     """ Класс модели Post: посты."""
     text = models.TextField()
-    pub_date = models.DateTimeField('Дата создания', auto_now_add=True)
+    pub_date = models.DateTimeField(auto_now_add=True)
     author = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='posts')
     image = models.ImageField(
@@ -41,5 +41,12 @@ class Comment(models.Model):
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField()
-    created = models.DateTimeField(
-        'Дата добавления', auto_now_add=True, db_index=True)
+    created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+
+class Follow(models.Model):
+    """ Класс модели Follow: подписки на авторов."""
+    user = models.ForeignKey(User, on_delete=models.CASCADE,
+                             related_name='follower')
+    following = models.ForeignKey(User, on_delete=models.CASCADE,
+                               related_name='following')

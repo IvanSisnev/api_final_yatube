@@ -1,17 +1,18 @@
 """
 Вьюсеты api.
 """
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.pagination import LimitOffsetPagination
 from django.shortcuts import get_object_or_404
 
-from posts.models import Post, Comment, Group
-from api.serializers import PostSerializer, CommentSerializer, GroupSerializer
+from posts.models import Post, Group, Comment, Follow, User
+from api.serializers import (PostSerializer, GroupSerializer,
+                             CommentSerializer, FollowSerializer)
 from api.permissions import AuthorOrReadOnly
 
 
 class PostViewSet(viewsets.ModelViewSet):
-    """Вьюсет для модели Post."""
+    """Вьюсет модели Post."""
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = (AuthorOrReadOnly,)
@@ -22,8 +23,15 @@ class PostViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
+class GroupViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет модели Group."""
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    permission_classes = (AuthorOrReadOnly,)
+
+
 class CommentViewSet(viewsets.ModelViewSet):
-    """Вьюсет для модели Comment."""
+    """Вьюсет модели Comment."""
     serializer_class = CommentSerializer
     permission_classes = (AuthorOrReadOnly,)
 
@@ -42,8 +50,22 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, post=post)
 
 
-class GroupViewSet(viewsets.ReadOnlyModelViewSet):
-    """Вьюсет для модели Group."""
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    permission_classes = (AuthorOrReadOnly,)
+class FollowViewSet(viewsets.ModelViewSet):
+    """Вьюсет модели Follow."""
+    serializer_class = FollowSerializer
+    filter_backends = (filters.SearchFilter,)
+    search_fields = ('user',)
+
+    def get_queryset(self):
+        """Создает queryset подписок."""
+        follows = Follow.objects.filter(user=self.request.user)
+        return follows
+
+    def perform_create(self, serializer):
+        """Сохранение подписки на автора юзером."""
+        following = get_object_or_404(User, username=self.kwargs.get(
+            'following'))
+        serializer.save(user=self.request.user, following=following)
+
+
+
