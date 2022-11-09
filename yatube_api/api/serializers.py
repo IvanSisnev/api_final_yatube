@@ -1,11 +1,12 @@
 """
 Сериализаторы для api.
 """
-from rest_framework import serializers, validators
+from rest_framework import serializers
+from rest_framework.validators import UniqueTogetherValidator
 from rest_framework.relations import SlugRelatedField
 
 
-from posts.models import Post, Comment, Group, Follow
+from posts.models import Post, Comment, Group, Follow, User
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -42,7 +43,8 @@ class FollowSerializer(serializers.ModelSerializer):
         slug_field='username',
     )
     following = serializers.SlugRelatedField(
-        read_only=True,
+        queryset=User.objects.all(),
+        # read_only=True,
         slug_field='username',
     )
 
@@ -50,10 +52,17 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ('user', 'following',)
 
-        # todo с валидаторами не работает сохранение подписки
-        # validators = [
-        #     validators.UniqueTogetherValidator(
-        #         queryset=Follow.objects.all(),
-        #         fields=('user', 'following',)
-        #     )
-        # ]
+        validators = [UniqueTogetherValidator(
+                queryset=Follow.objects.all(),
+                fields=('user', 'following',)
+            )
+        ]
+
+    def validate_following(self, user_to_follow):
+        """Метод валидации объекта подписки: нельзя подписаться на себя и
+        на несуществующего автора."""
+        if (user_to_follow == self.context['request'].user or user_to_follow
+                not in User.objects.all()):
+            raise serializers.ValidationError('Невозможно подписаться на '
+                                              'этого автора.')
+        return user_to_follow
