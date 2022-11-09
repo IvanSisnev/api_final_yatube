@@ -1,4 +1,14 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
+from django.urls import include, path
+
+from api.views import PostViewSet, CommentViewSet
+
+router = SimpleRouter()
+router.register('posts', PostViewSet)
+router.register(r'posts/(?P<post_id>\d+)/comments', CommentViewSet,
+                basename='comment')
+
 
 urlpatterns = [
+    path('v1/', include(router.urls))
 ]

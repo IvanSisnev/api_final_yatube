@@ -1,3 +1,6 @@
+"""
+Файл с сериализаторами для api.
+"""
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
@@ -6,18 +9,19 @@ from posts.models import Comment, Post
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = SlugRelatedField(slug_field='username', read_only=True)
+    """Сериализатор модели Post."""
+    author = SlugRelatedField(read_only=True, slug_field='username')
 
     class Meta:
-        fields = '__all__'
         model = Post
+        fields = ('id', 'author', 'text', 'pub_date', 'image', 'group',)
 
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = serializers.SlugRelatedField(
-        read_only=True, slug_field='username'
-    )
+    """Сериализатор модели Comment."""
+    author = SlugRelatedField(read_only=True, slug_field='username')
 
     class Meta:
-        fields = '__all__'
         model = Comment
+        fields = ('id', 'author', 'text', 'created', 'post',)
+        read_only_fields = ('post',)
