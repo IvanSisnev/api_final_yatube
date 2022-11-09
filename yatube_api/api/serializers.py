@@ -1,7 +1,7 @@
 """
 Сериализаторы для api.
 """
-from rest_framework import serializers
+from rest_framework import serializers, validators
 from rest_framework.relations import SlugRelatedField
 
 
@@ -36,12 +36,24 @@ class GroupSerializer(serializers.ModelSerializer):
 
 class FollowSerializer(serializers.ModelSerializer):
     """Сериализатор модели Follow."""
-    user = serializers.SlugRelatedField(read_only=True,
-                                             slug_field='username')
-    following = serializers.SlugRelatedField(read_only=True,
-                                             slug_field='username')
+    user = serializers.SlugRelatedField(
+        read_only=True,
+        default=serializers.CurrentUserDefault(),
+        slug_field='username',
+    )
+    following = serializers.SlugRelatedField(
+        read_only=True,
+        slug_field='username',
+    )
 
     class Meta:
         model = Follow
         fields = ('user', 'following',)
-        read_only_fields = ('user',)
+
+        # todo с валидаторами не работает сохранение подписки
+        # validators = [
+        #     validators.UniqueTogetherValidator(
+        #         queryset=Follow.objects.all(),
+        #         fields=('user', 'following',)
+        #     )
+        # ]
