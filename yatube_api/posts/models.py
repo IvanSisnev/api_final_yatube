@@ -1,5 +1,5 @@
 """
-Модели проекта.
+Модели приложения posts.
 """
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -49,4 +49,4 @@ class Follow(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE,
                              related_name='follower')
     following = models.ForeignKey(User, on_delete=models.CASCADE,
-                               related_name='following')
+                                  related_name='following')
