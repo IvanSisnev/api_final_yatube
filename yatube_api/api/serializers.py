@@ -1,11 +1,11 @@
 """
-Файл с сериализаторами для api.
+Сериализаторы для api.
 """
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 
 
-from posts.models import Comment, Post
+from posts.models import Post, Comment, Group
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -25,3 +25,10 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ('id', 'author', 'text', 'created', 'post',)
         read_only_fields = ('post',)
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    """Сериализатор модели Group."""
+    class Meta:
+        model = Group
+        fields = ('id', 'title', 'slug', 'description')

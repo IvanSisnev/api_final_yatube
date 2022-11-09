@@ -1,9 +1,12 @@
+"""
+Вьюсеты api.
+"""
 from rest_framework import viewsets
 from rest_framework.pagination import LimitOffsetPagination
 from django.shortcuts import get_object_or_404
 
-from posts.models import Post, Comment
-from api.serializers import PostSerializer, CommentSerializer
+from posts.models import Post, Comment, Group
+from api.serializers import PostSerializer, CommentSerializer, GroupSerializer
 from api.permissions import AuthorOrReadOnly
 
 
@@ -39,3 +42,8 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, post=post)
 
 
+class GroupViewSet(viewsets.ReadOnlyModelViewSet):
+    """Вьюсет для модели Group."""
+    queryset = Group.objects.all()
+    serializer_class = GroupSerializer
+    permission_classes = (AuthorOrReadOnly,)
