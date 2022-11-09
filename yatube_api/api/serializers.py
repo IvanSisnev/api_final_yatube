@@ -65,3 +65,4 @@ class FollowSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Невозможно подписаться на '
                                               'этого автора.')
         return user_to_follow
+
