@@ -63,9 +63,9 @@ class FollowViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         """Сохранение подписки на автора юзером."""
-        following = get_object_or_404(User, username=self.kwargs.get(
-            'following'))
-        serializer.save(user=self.request.user, following=following)
+        username_to_follow = serializer.initial_data['following']
+        user_to_follow = get_object_or_404(User, username=username_to_follow)
+        serializer.save(user=self.request.user, following=user_to_follow)
 
 
 
