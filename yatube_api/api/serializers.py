@@ -50,6 +50,7 @@ class FollowSerializer(serializers.ModelSerializer):
         model = Follow
         fields = ('user', 'following',)
 
+        # Защита от подписок-дубликатов.
         validators = [UniqueTogetherValidator(
                 queryset=Follow.objects.all(),
                 fields=('user', 'following',)
@@ -59,8 +60,8 @@ class FollowSerializer(serializers.ModelSerializer):
     def validate_following(self, user_to_follow):
         """Метод валидации объекта подписки: нельзя подписаться на себя и
         на несуществующего автора."""
-        if (user_to_follow == self.context['request'].user or user_to_follow
-                not in User.objects.all()):
+        if (user_to_follow == self.context['request'].user or not
+        User.objects.filter(username=user_to_follow).exists()):
             raise serializers.ValidationError('Невозможно подписаться на '
                                               'этого автора.')
         return user_to_follow
