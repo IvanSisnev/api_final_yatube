@@ -9,7 +9,7 @@ class AuthorOrReadOnly(permissions.BasePermission):
     Кастомный пермишен класс для разграничения доступа user/author vs. anon.
     """
     def has_permission(self, request, view):
-        """Определяет возможность запроса."""
+        """Определяет возможность осуществления запроса."""
         return (
             request.method in permissions.SAFE_METHODS
             or request.user.is_authenticated
