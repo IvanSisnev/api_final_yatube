@@ -4,11 +4,19 @@
 from rest_framework import viewsets, filters
 from rest_framework.pagination import LimitOffsetPagination
 from django.shortcuts import get_object_or_404
+from rest_framework import mixins
 
 from posts.models import Post, Group, Follow, User
 from api.serializers import (PostSerializer, GroupSerializer,
                              CommentSerializer, FollowSerializer)
 from api.permissions import AuthorOrReadOnly
+
+
+class RetrieveCreateViewSet(mixins.ListModelMixin,
+                            mixins.CreateModelMixin,
+                            viewsets.GenericViewSet):
+    """Кастомный вьюсет лишь на GET/POST."""
+    pass
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -50,7 +58,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user, post=post)
 
 
-class FollowViewSet(viewsets.ModelViewSet):
+class FollowViewSet(RetrieveCreateViewSet):
     """Вьюсет модели Follow."""
     serializer_class = FollowSerializer
     filter_backends = (filters.SearchFilter,)
@@ -58,11 +66,9 @@ class FollowViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         """Создает queryset подписок."""
-        follows = Follow.objects.filter(user=self.request.user)
+        follows = self.request.user.follower.all()
         return follows
 
     def perform_create(self, serializer):
         """Сохранение подписки на автора юзером."""
-        username_to_follow = serializer.initial_data.get('following')
-        user_to_follow = get_object_or_404(User, username=username_to_follow)
-        serializer.save(user=self.request.user, following=user_to_follow)
+        serializer.save(user=self.request.user)
